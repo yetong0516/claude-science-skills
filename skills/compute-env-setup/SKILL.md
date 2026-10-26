@@ -16,7 +16,7 @@ What's invariant across every backend is what a job *needs*: a software stack (s
 
 These are not exhaustive and they blend at the edges (a Slurm node can run Apptainer containers built from the same Dockerfile a cloud backend uses). The point is to recognize which shape you're in, because that determines what "build", "register", and "resolve" mean.
 
-**Direct SSH host (conda or venv).** You have a shell on the machine. There is no image, no runner script, no renderer — *you* are the renderer: read the spec's `pip_phases` and run them in order after `conda create -n <name> python=<X>`. (When the spec's `base` is a Docker image string, treat it as documentation of the python + CUDA versions you need, not something to pull.) Weights live in scratch or home; download once, point the tool's cache env var there. The env name *is* the conda env name — name it exactly what you want `--env` to accept, there's no aliasing layer. `submit_job` activates it (`conda run -n <name> …`) and runs. "Registering" is implicit: once the host is added as a Claude Science SSH provider, its probe lists conda envs, and you append a `### env:` block to `compute_details` so the next agent knows what's there without re-probing. Lowest ceremony; often right for a personal GPU box.
+**Direct SSH host (conda or venv).** You have a shell on the machine. There is no image, no runner script, no renderer — *you* are the renderer: read the spec's `pip_phases` and run them in order after `conda create -n <name> python=<X>`. (When the spec's `base` is a Docker image string, treat it as documentation of the python + CUDA versions you need, not something to pull.) Weights live in scratch or home; download once, point the tool's cache env var there. The env name *is* the conda env name — there's no aliasing layer, and there's no separate environment argument on `submit_job` either: the activation goes in the command string itself (`conda run -n <name> …`), which is what runs. "Registering" is implicit: once the host is added as a Claude Science SSH provider, its probe lists conda envs, and you append a `### env:` block to `compute_details` so the next agent knows what's there without re-probing. Lowest ceremony; often right for a personal GPU box.
 
 **Scheduler cluster (Slurm, PBS, LSF).** Shared filesystem, login node, compute nodes via `srun`/`sbatch`, usually no root. Software is `module load <name>` or Apptainer/Singularity containers in a shared path. For containers: `apptainer pull <name>.sif docker://<ref>` if the image was built elsewhere; `apptainer build --fakeroot <name>.sif <name>.def` only if the cluster enables unprivileged user namespaces (many don't — build off-cluster and `pull`). Set `APPTAINER_CACHEDIR`/`APPTAINER_TMPDIR` to scratch first or the layer cache will blow your home quota. For modules: write the modulefile under a *personal* tree (`$HOME/modulefiles/`) and `module use $HOME/modulefiles` in the job preamble — you almost certainly can't write the system MODULEPATH. Weights go in shared scratch; note that scratch is usually purge-on-idle, so record the purge window and consider mirroring to a project/group quota. Tier becomes scheduler directives, and on most clusters `--account`, `--partition`, and `--time` are mandatory alongside `--gres=gpu:<type>:1 --cpus-per-task --mem`. Compute nodes often have **no internet** — egress is not a fallback here; pre-stage everything from the login or data-transfer node.
 
@@ -47,14 +47,15 @@ A clean spec renders unchanged through every renderer you have. When you find yo
 
 ## BYOC providers — building via the `compute_provider` kernel
 
+
 On a `byoc:` provider, you're not writing a Dockerfile and pushing to a
 registry. You call `list_envs()` then `build_env(name)` in the
 `compute_provider` tool — a confined Python shell where the provider's SDK
 is already imported and authenticated — and carry the returned image
 reference back to record in `compute_details`. The first cell raises a
-one-time kernel approval card; the kernel rejects `gpu=` and clamps CPU
-sandboxes so it isn't a back door to the job surface. `terminate()` any
-sandbox you create ad hoc in that kernel before you move on.
+one-time kernel approval card; the kernel rejects `gpu=` and any sandbox
+`timeout` above 30 min so it isn't a back door to the job surface.
+`terminate()` any sandbox you create ad hoc in that kernel before you move on.
 
 `remote-compute-<provider>/env-setup.md` has the architectural rationale
 for why this is a separate kernel and the provider-specific calls.

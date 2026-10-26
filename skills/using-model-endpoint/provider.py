@@ -34,7 +34,7 @@ class InferProvider:
 
 
 
-    _alias_name_re = re.compile(r"(?!LD_|DYLD_)[A-Z][A-Z0-9_]{0,127}")
+    _alias_name_re = re.compile(r"(?!LD_|DYLD_|MALLOC_)[A-Z][A-Z0-9_]{0,127}")
     _alias_denylist = frozenset((
 
         "PATH", "HOME", "USER", "SHELL", "TMPDIR", "LANG", "LC_ALL", "PWD",
@@ -48,6 +48,14 @@ class InferProvider:
 
 
 
+
+
+        "GCONV_PATH", "GLIBC_TUNABLES", "LOCPATH", "GETCONF_DIR",
+        "HOSTALIASES", "LOCALDOMAIN", "NIS_PATH", "NLSPATH",
+        "RESOLV_HOST_CONF", "RES_OPTIONS", "TZDIR",
+
+
+
         "SSH_ASKPASS", "SSH_ASKPASS_REQUIRE",
 
 
@@ -56,6 +64,13 @@ class InferProvider:
 
 
         "OPERON_ASKPASS_NONCE", "OPERON_ASKPASS_SOCK",
+
+
+        "OPERON_TRAMPOLINE_TARGET",
+
+
+
+        "OPERON_WIN_CONSOLE_RELAY",
 
         "SSL_CERT_FILE", "SSL_CERT_DIR", "REQUESTS_CA_BUNDLE",
         "CURL_CA_BUNDLE", "NODE_EXTRA_CA_CERTS",

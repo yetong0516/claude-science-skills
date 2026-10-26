@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-10-26",
+  "runtime_version": "0.1.70",
+  "source_relative_root": "runtime/0.1.70-release/mcp-servers/bio-tools/lib",
+  "server_groups": 24,
+  "inventory_method": "Enumerate bundled lib/mcp_*/server.py files without importing or executing services.",
+  "connectivity_tested": false,
+  "credentials_or_account_data_included": false,
+  "complete_platform_catalog": false,
+  "servers": [
+    {
+      "package": "mcp_bio",
+      "relative_server_path": "mcp_bio/server.py",
+      "server_sha256": "47dcdde6e974306350b79eb7ce622c041ce6bf94ebd3cd77ade87bab4672159b"
+    },
+    {
+      "package": "mcp_biomart",
+      "relative_server_path": "mcp_biomart/server.py",
+      "server_sha256": "29c25b61db39d0ca81846902c6e0212e9948b0105fe507214957674ac77aa4e5"
+    },
+    {
+      "package": "mcp_biorxiv",
+      "relative_server_path": "mcp_biorxiv/server.py",
+      "server_sha256": "6cc54635e3c300b99bf8aa8f357f6248f4861cd22f324d023112c5b6fb02578c"
+    },
+    {
+      "package": "mcp_cancer_models",
+      "relative_server_path": "mcp_cancer_models/server.py",
+      "server_sha256": "2600bb230236bbb1aa8c8c4dfbfdef5b26921f88a73f7b5456d0aa5401442ad7"
+    },
+    {
+      "package": "mcp_cellguide",
+      "relative_server_path": "mcp_cellguide/server.py",
+      "server_sha256": "04312e08fec2c3a0a9d9827d60fc324257631f3428ae2c4218a06b2862693c2a"
+    },
+    {
+      "package": "mcp_chembl",
+      "relative_server_path": "mcp_chembl/server.py",
+      "server_sha256": "c0fbf6d4594f30681b84cc1d62090ebf66fd38575aba531decc99d6b502e39c6"
+    },
+    {
+      "package": "mcp_chemistry",
+      "relative_server_path": "mcp_chemistry/server.py",
+      "server_sha256": "2dab8c8fac81ee5ba83c700435afbed3b722254e640b14c211d4b1f7e9ce7e76"
+    },
+    {
+      "package": "mcp_clinical_genomics",
+      "relative_server_path": "mcp_clinical_genomics/server.py",
+      "server_sha256": "b4870e396fa5c1b8e2b1d502c18cf49a2af478c8f85db5488ade893cd88d0ee8"
+    },
+    {
+      "package": "mcp_clinical_trials",
+      "relative_server_path": "mcp_clinical_trials/server.py",
+      "server_sha256": "bba6a1ad2a5a1de15d4e33c79a9baf4d14e887e192e9568eb3792202f8c37ad4"
+    },
+    {
+      "package": "mcp_drug_regulatory",
+      "relative_server_path": "mcp_drug_regulatory/server.py",
+      "server_sha256": "c6e033f905e0ea0720cefad6ccbb7d6695ed08aa1ef95049f384495a94708d44"
+    },
+    {
+      "package": "mcp_expression",
+      "relative_server_path": "mcp_expression/server.py",
+      "server_sha256": "1095f985eaecfb8c4240236f0e30a0cddb783866dcd95fb2dcb1dafa69a41c2a"
+    },
+    {
+      "package": "mcp_genes_ontologies",
+      "relative_server_path": "mcp_genes_ontologies/server.py",
+      "server_sha256": "d03ed1ec4daa384402de620923908bc1480602689767e749a49eb5356c6dc137"
+    },
+    {
+      "package": "mcp_genomes",
+      "relative_server_path": "mcp_genomes/server.py",
+      "server_sha256": "2ec2c7dd1682d437d6a69426065c57f9e9a8ff6813411905f18ef3a815ac2990"
+    },
+    {
+      "package": "mcp_human_genetics",
+      "relative_server_path": "mcp_human_genetics/server.py",
+      "server_sha256": "e6d9e64035e16d1daf3751be24d736d445f54b2efbc17f1a973758a505956815"
+    },
+    {
+      "package": "mcp_literature",
+      "relative_server_path": "mcp_literature/server.py",
+      "server_sha256": "243719b529cd87aaf32b0351dc70ba6fc09cd6083519195d521a5fff84dab8b2"
+    },
+    {
+      "package": "mcp_omics_archives",
+      "relative_server_path": "mcp_omics_archives/server.py",
+      "server_sha256": "f6ab984623c6ae8467b06ea47f4aaf2d35ce92d3fa4407ec434a178c6e39b37a"
+    },
+    {
+      "package": "mcp_protein_annotation",
+      "relative_server_path": "mcp_protein_annotation/server.py",
+      "server_sha256": "642a34d06ee933d904037b8bb12eca2c4f1415343a22f284b403ce23b48e2c9b"
+    },
+    {
+      "package": "mcp_pubmed",
+      "relative_server_path": "mcp_pubmed/server.py",
+      "server_sha256": "ed3cd8f1fb0c758359ff590788a3fc71fe0e956d9c4ff006b8ab092322560a23"
+    },
+    {
+      "package": "mcp_regulation",
+      "relative_server_path": "mcp_regulation/server.py",
+      "server_sha256": "15922907f26a6b128fb5ae3407d1dffb13a5954c42f396d8fefcc423915bc183"
+    },
+    {
+      "package": "mcp_research_resources",
+      "relative_server_path": "mcp_research_resources/server.py",
+      "server_sha256": "d8555d4bb874e27078ace12d1051bfd397e27f3e34435aed765e084943a25e8a"
+    },
+    {
+      "package": "mcp_rna",
+      "relative_server_path": "mcp_rna/server.py",
+      "server_sha256": "504b93a298f0f9f01d1a907bfcf1f9631575632f60c65e41c018c6f4040f6688"
+    },
+    {
+      "package": "mcp_structures_interactions",
+      "relative_server_path": "mcp_structures_interactions/server.py",
+      "server_sha256": "243a4f555f84475e925802d7cfbdb22b25c117c3db5359e566fef0935c7659fb"
+    },
+    {
+      "package": "mcp_variants",
+      "relative_server_path": "mcp_variants/server.py",
+      "server_sha256": "90785d0f7789f00ff3c75b3da73e1a11038dafba28c04d2b2e47e4ee3e8d07a7"
+    },
+    {
+      "package": "mcp_zinc",
+      "relative_server_path": "mcp_zinc/server.py",
+      "server_sha256": "899676cc203c8cd9bb900fe1d81f9948e775e8061730509ad53ae9109365ed59"
+    }
+  ]
+}

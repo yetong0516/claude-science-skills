@@ -44,6 +44,15 @@ at 3× cost for zero recall gain; haiku is the right default. Deliberate
 cost pin — for the platform's reasoning default see
 ``[llm] kernel_reasoning_model`` / ``host.reasoning_model()``."""
 
+
+def pdf_own_model_fields(caller_model):
+    """Extra request fields for the skill's own default model: thinking off,
+    so hidden thinking cannot spend a page-sized output budget (an omitted
+    ``thinking`` means the server's default, which on current models can be
+    ON). Empty for a caller's own ``model=``, which is sent as written."""
+    return {} if caller_model else {"thinking": {"type": "disabled"}}
+
+
 PDF_AUTO_IMAGE_CHARS_THRESHOLD = 80
 """Mean chars/page below which ``mode='auto'`` switches text→image.
 Rasterized scans and image-only slide-deck exports land at 0; real
@@ -479,6 +488,7 @@ def pdf_map(path, prompt="Summarize this page in 2 sentences.",
     ``prompt`` is applied per-page with the page text/image prepended;
     defaults to a 2-sentence summary.
     """
+    own = pdf_own_model_fields(model)
     model = model or PDF_DEFAULT_MODEL
     parsed = pdf_pages(path, mode=mode, pages=pages, dpi=dpi)
     if not parsed:
@@ -516,6 +526,7 @@ def pdf_map(path, prompt="Summarize this page in 2 sentences.",
             ),
             "model": model,
             "max_tokens": int(max_tokens),
+            **own,
         }
         if want_image and p.get("image_path"):
             req["images"] = [p["image_path"]]
@@ -686,6 +697,7 @@ def pdf_outline(path, model=None, max_concurrency=8, force_llm=False,
         r = pdf_sdk().llm([{
             "prompt": hdr + body,
             "model": model or PDF_DEFAULT_MODEL,
+            **pdf_own_model_fields(model),
 
 
 
@@ -755,7 +767,7 @@ def pdf_outline(path, model=None, max_concurrency=8, force_llm=False,
          "required": ["section_headings"]},
         pages=pages,
         mode="auto",
-        model=model or PDF_DEFAULT_MODEL,
+        model=model,
         max_concurrency=max_concurrency,
         system=(
             "You extract section headings from a single PDF page. Return "
@@ -845,6 +857,7 @@ def pdf_scan(path, query, top_k=5, mode="auto", model=None,
     """
     if not isinstance(query, str) or not query.strip():
         raise ValueError("pdf_scan: query must be a non-empty str")
+    own = pdf_own_model_fields(model)
     model = model or PDF_DEFAULT_MODEL
 
     parsed = pdf_pages(path, mode=mode, pages=pages, dpi=dpi)
@@ -918,6 +931,7 @@ def pdf_scan(path, query, top_k=5, mode="auto", model=None,
             "prompt": (f"{hdr}{q_open}{pdf_guard_text(query)}{q_close}"
                        f"\n\n{body}"),
             "model": model,
+            **own,
 
 
             "max_tokens": 2048,
@@ -1003,6 +1017,7 @@ def pdf_scan(path, query, top_k=5, mode="auto", model=None,
         req = {
             "prompt": prompt,
             "model": model,
+            **own,
             "max_tokens": 256,
             "tools": [PDF_CLASSIFY_TOOL],
             "tool_choice": {"type": "tool", "name": "classify_page"},
@@ -1080,7 +1095,7 @@ def pdf_extract(path, schema, pages=None, mode="auto", model=None,
     "error": str|None, "stop_reason": str|None, "usage": {...}}, ...]`` in
     page order. ``stop_reason == "max_tokens"`` means the tool_use JSON was
     truncated mid-emit — ``data`` may be None or partial; raise
-    ``max_tokens`` (default 2048, max 32768) for dense schemas.
+    ``max_tokens`` (default 2048) for dense schemas.
 
     Example — pull every citation::
 
@@ -1095,6 +1110,7 @@ def pdf_extract(path, schema, pages=None, mode="auto", model=None,
             "pdf_extract: schema must be a JSON-Schema object dict "
             '({"type":"object","properties":{...}})'
         )
+    own = pdf_own_model_fields(model)
     model = model or PDF_DEFAULT_MODEL
 
     parsed = pdf_pages(path, mode=mode, pages=pages, dpi=dpi)
@@ -1127,6 +1143,7 @@ def pdf_extract(path, schema, pages=None, mode="auto", model=None,
                 f"{txt or '[no extractable text]'}\n{p_close}"
             ),
             "model": model,
+            **own,
             "max_tokens": int(max_tokens),
             "tools": [tool],
             "tool_choice": {"type": "tool", "name": "extract"},

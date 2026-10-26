@@ -51,6 +51,15 @@ JSON columns: `input_data` (what started the frame), `output_data`
 `context_data` (the full serialized runner state — see below),
 `mentioned_artifact_ids`, `specialists_used`.
 
+`input_data`, `output_data` and `context_data` come back without any approval
+request that is still waiting for the person's answer. Where the tool cannot
+take one out safely, or finds a label it cannot filter safely (such a
+document need not hold a request at all), the column holds a one-key object,
+`{"_withheld": "…"}`, in place of the document: `json_extract` of any
+document field (`$.response`, `$._messages`, …) gives NULL, and
+`host.frames(frame_id=...)` still gives the session's messages. A NULL
+column means nothing is stored there, or text this tool cannot parse.
+
 `context_data` is large. It holds the entire runner state under
 underscore-prefixed keys — notably `$._messages` (the full conversation
 array), `$._input_tokens` / `$._output_tokens` / `$._total_cost` (same values
@@ -172,6 +181,11 @@ SDK accessor instead.
   (present on sandboxed-network builds).
 - Compute provider configuration: `compute_providers`. → the
   `list_compute` / `compute_details` tools.
+- SQLite-internal tables (schema bookkeeping, index statistics, raw page
+  access): `sqlite_sequence`, `sqlite_stat1`, `sqlite_stat4`, `dbstat`,
+  `sqlite_dbpage`. The first two show up in `sqlite_master` introspection,
+  the rest are engine-internal surfaces; none holds anything
+  analysis-relevant — query the documented tables instead.
 
 The denylist matches on word boundaries anywhere in the SQL, so a column
 alias or string literal that happens to equal a denied table name will also
@@ -256,8 +270,8 @@ The `host` object is a Python SDK backed by host-side RPCs. Run
 | `host.children()` | **`repl`** | Live sub-agents (delegation-enabled profiles only) |
 | `host.delegate(task_or_list, name=?, profile=?, output_schema=?, model=?)` | **`repl`** | Spawn child agent(s), block until done (ultra-mode roots; requires `[delegation] sdk_enabled`). `model=` pins the child's model per request — e.g. a haiku-class id for cheap fan-outs. Blocks the cell — for long-running children run it in a background cell (a user message mid-call backgrounds it; a Stop / cell interrupt cancels the children) |
 | `host.agents.*` / `host.skills.*` | **`repl`** | Profile and skill CRUD — load `customize` skill |
-| `host.submit_output(output, completion_bullets=[...])` | **`repl`** | Submit your structured result when your task carries an OUTPUT SCHEMA section (required before completing). Build the dict in-kernel — the payload rides the host-call wire, not your prose; on a validation/review bounce, mutate the dict in memory and resubmit (replaces the recorded output) |
-| `host.compute.*` | **`repl`** | Remote job submit/wait — load the compute skill it names |
+| `host.submit_output(output, completion_bullets=[...], deviations=[...])` | **`repl`** | Submit your structured result when your task carries an OUTPUT SCHEMA section (required before completing). Build the dict in-kernel — the payload rides the host-call wire, not your prose; on a validation/review bounce, mutate the dict in memory and resubmit (replaces the recorded output). `deviations`: one sentence per place you processed less than, or something other than, what the task names — or `["none"]`; omitting it raises and your delegator sees the result marked UNDECLARED |
+| `host.compute.create(target)` / `.ledger()` | **`repl`** | Remote jobs — `c.submit_job(...)` then park on `wait_for_notification` (never poll); load the compute skill `compute_details` names |
 | `host.artifacts(...)` | `python` | Filtered artifact search (wraps the join above) |
 | `host.artifact_path(vid)` / `host.artifact_marker(vid)` | `python` | Resolve a version_id to a readable path / marker |
 | `host.lineage[vid]` | `python` | `{code, messages, env, inputs}` for one version |

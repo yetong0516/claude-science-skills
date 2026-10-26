@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-10-26",
+  "runtime_version": "0.1.70",
+  "baseline_commit": "ea5f00b6e0b621f539466eafa51952ce2caaed60",
+  "source": {
+    "kind": "local_staged_runtime",
+    "relative_root": "runtime/0.1.70-release/skills",
+    "official_download_url": "https://downloads.claude.ai/claude-science/latest/mac-arm64.dmg",
+    "download_version_check": {
+      "version": "0.1.70",
+      "sha256": "ad9651847f4e6bedf6381fb4ef0be2ffa5d54d74a4e1aa2e5362b4d9f50c143a",
+      "app_launched": false,
+      "scope": "Version verified independently; exported bytes are from the local staged runtime, not the DMG."
+    }
+  },
+  "scope": {
+    "skill_packages": 29,
+    "exported_files": 81,
+    "changed_existing_files": 30,
+    "changed_skill_instructions": 15,
+    "added_files": [
+      "skills/THIRD_PARTY_LICENSES.md"
+    ],
+    "removed_export_files": [],
+    "credentials_or_account_data_included": false,
+    "runtime_services_tested": false
+  },
+  "legacy_files_outside_snapshot": [
+    "skills/alphafold2/.catalog_stamp",
+    "skills/boltz/.catalog_stamp",
+    "skills/borzoi/.catalog_stamp",
+    "skills/chai1/.catalog_stamp",
+    "skills/compute-env-setup/.catalog_stamp",
+    "skills/customize/.catalog_stamp",
+    "skills/diffdock/.catalog_stamp",
+    "skills/esmfold2/.catalog_stamp",
+    "skills/evo2/.catalog_stamp",
+    "skills/fair-esm2/.catalog_stamp",
+    "skills/figure-composer/.catalog_stamp",
+    "skills/figure-style/.catalog_stamp",
+    "skills/indication-dossier/.catalog_stamp",
+    "skills/ligandmpnn/.catalog_stamp",
+    "skills/literature-review/.catalog_stamp",
+    "skills/managed-model-endpoints/.catalog_stamp",
+    "skills/openfold3/.catalog_stamp",
+    "skills/paper-narrative/.catalog_stamp",
+    "skills/pdf-explore/.catalog_stamp",
+    "skills/product-self-knowledge/.catalog_stamp",
+    "skills/proteinmpnn/.catalog_stamp",
+    "skills/remote-compute-modal/.catalog_stamp",
+    "skills/remote-compute-ssh/.catalog_stamp",
+    "skills/scgpt/.catalog_stamp",
+    "skills/scvi-tools/.catalog_stamp",
+    "skills/self-awareness/.catalog_stamp",
+    "skills/skill-creator/.catalog_stamp",
+    "skills/solublempnn/.catalog_stamp",
+    "skills/using-model-endpoint/.catalog_stamp"
+  ],
+  "files": [
+    {
+      "file": "skills/THIRD_PARTY_LICENSES.md",
+      "sha256": "a3a392f1ff3b55e98b3a86c741c67c4aae2719513edef139f831b204d834b41b",
+      "bytes": 71330
+    },
+    {
+      "file": "skills/alphafold2/SKILL.md",
+      "sha256": "562520a36043c09f6e740b28a097e1e11a68b73bcc3c4c7cb0e269a644b4427a",
+      "bytes": 4965
+    },
+    {
+      "file": "skills/boltz/SKILL.md",
+      "sha256": "4205a08363955f762f45a2065263de0dabedd898eba13460830b70b621b26700",
+      "bytes": 5305
+    },
+    {
+      "file": "skills/borzoi/SKILL.md",
+      "sha256": "a6b87d906c21eb51c141f7510b2e77ef8eab7127abb17a66467043408d92d702",
+      "bytes": 3910
+    },
+    {
+      "file": "skills/chai1/SKILL.md",
+      "sha256": "14c7b111475cfb2df0c1ba4de8427b09099439417101bc443fe52e8c80eff539",
+      "bytes": 4615
+    },
+    {
+      "file": "skills/compute-env-setup/SKILL.md",
+      "sha256": "951fa2b991fdefebc1459994a4c6f204319e94bb3086993d27cfc70cca4bbfba",
+      "bytes": 17881
+    },
+    {
+      "file": "skills/compute-env-setup/references/envs_reference.md",
+      "sha256": "e09b253a71d7399ff0e86ef0967be140f787c18781c7732c0d8c100f8d26b19d",
+      "bytes": 18722
+    },
+    {
+      "file": "skills/customize/SKILL.md",
+      "sha256": "a0003b089157ea76b05d923a226aeff0e393115d8d1e9466a90dd267a7f7d4ea",
+      "bytes": 25606
+    },
+    {
+      "file": "skills/diffdock/SKILL.md",
+      "sha256": "6c3acc1710209b8daf2322e6103043c3487412153e2455deab6abd851ad8efb6",
+      "bytes": 4476
+    },
+    {
+      "file": "skills/diffdock/references/workflows.md",
+      "sha256": "4f4d780abb02650e475c6e2392db44dc615ecc9c0676a6442847118481c980f9",
+      "bytes": 1984
+    },
+    {
+      "file": "skills/esmfold2/SKILL.md",
+      "sha256": "28e625bab51a5d33e278b5ee6f304d76afa35c424fd919e1914d649df7600175",
+      "bytes": 10208
+    },
+    {
+      "file": "skills/esmfold2/references/design-hook.md",
+      "sha256": "f100def8706fcadd5ffba599137b910ed7b2896b23e46473f81c414f5335f75a",
+      "bytes": 1452
+    },
+    {
+      "file": "skills/esmfold2/references/esmc.md",
+      "sha256": "62ce8706e7493a537af64e1550c6203d36e2c29a36a46fc2d3afc1b87681abce",
+      "bytes": 3052
+    },
+    {
+      "file": "skills/evo2/SKILL.md",
+      "sha256": "813c06c97c5d14e487341a022c7f3f7cd7bb4927db8fd7dc77f1336e5a6efbfa",
+      "bytes": 8925
+    },
+    {
+      "file": "skills/fair-esm2/SKILL.md",
+      "sha256": "17d3dd37b620da1ba7b6cf448f518092a7d1feb8c7f49025af0c0fe530aa8087",
+      "bytes": 8199
+    },
+    {
+      "file": "skills/figure-composer/SKILL.md",
+      "sha256": "37f4dc3fb964a527e51d305e2d545a63d43e84009011780b9a411f8696fdebd1",
+      "bytes": 6773
+    },
+    {
+      "file": "skills/figure-composer/kernel.py",
+      "sha256": "2625345ed20a54c19bcba91490e8b7d9d59f608d81196ca77a95eac148136534",
+      "bytes": 13773
+    },
+    {
+      "file": "skills/figure-style/SKILL.md",
+      "sha256": "cdf7f4e13bb69044a256a77379a9e0465ba2901b50a9359196efa8e5243ebc04",
+      "bytes": 17233
+    },
+    {
+      "file": "skills/figure-style/kernel.py",
+      "sha256": "8d16286025719a395e744c5bedcefd1592b1b8e3450263dd1ea7807ffec70122",
+      "bytes": 12457
+    },
+    {
+      "file": "skills/indication-dossier/SKILL.md",
+      "sha256": "dfad982f985e7db5a406420b108713c0b8ce39903e304a3f968d11271c9e64ec",
+      "bytes": 5875
+    },
+    {
+      "file": "skills/indication-dossier/references/00-research-standards.md",
+      "sha256": "f4fad6faa98f43c20f80517be606bd03b4020f2bf4d03d5d717885b2341d685b",
+      "bytes": 3101
+    },
+    {
+      "file": "skills/indication-dossier/references/01-meta-initialization.md",
+      "sha256": "c09d1266e85c5aedc04d24d0c36b19c3e46444c6398c2be64896d58d9c6dba2c",
+      "bytes": 1724
+    },
+    {
+      "file": "skills/indication-dossier/references/02-epidemiology-research.md",
+      "sha256": "1f21827754dd56076cb9edb16aee8dc3f75b16681fa5ee7255f1b7ee2f4e0a06",
+      "bytes": 2109
+    },
+    {
+      "file": "skills/indication-dossier/references/03-biology-soc-research.md",
+      "sha256": "722ed3409705ed2822c16d6e9d6f0e0a3026cef3670b0547299669b1f7ce6d58",
+      "bytes": 2368
+    },
+    {
+      "file": "skills/indication-dossier/references/04-regulatory-trials-research.md",
+      "sha256": "322c2c6129fcfb5b1f3d03e2c2c69557872567cf26899a8538483c4c3e385eae",
+      "bytes": 3154
+    },
+    {
+      "file": "skills/indication-dossier/references/05-synthesis.md",
+      "sha256": "4964f5549ae408969257c79b9edeb5359a1ee78e3d5e3ddc527071046f43ff81",
+      "bytes": 5323
+    },
+    {
+      "file": "skills/indication-dossier/references/06-writing-style.md",
+      "sha256": "c4282e80b9c418a67019061c01e4a50c5496a06e8d2c70e62a80ca2d43970617",
+      "bytes": 1746
+    },
+    {
+      "file": "skills/indication-dossier/references/waypoint-schemas.md",
+      "sha256": "4af35fff41a58b20fdb1d80e433ca2d27a8d02d83130175d8abf3c39957cd4e7",
+      "bytes": 2923
+    },
+    {
+      "file": "skills/ligandmpnn/SKILL.md",
+      "sha256": "1c1c3235511a25e8d2965a6be188e7f8ead136abf28c1981e3fc6ae8ea40380e",
+      "bytes": 10490
+    },
+    {
+      "file": "skills/literature-review/SKILL.md",
+      "sha256": "88d86b884e1aba99aaf69d3f5c636e78935d91a1b0d690d5e3ed483d4c8d42f6",
+      "bytes": 11334
+    },
+    {
+      "file": "skills/literature-review/kernel.py",
+      "sha256": "5c16b9aa0e97b9b4ac25244184b6c49737f5b57540bc5d14ce6d0928caa0f5f0",
+      "bytes": 23551
+    },
+    {
+      "file": "skills/managed-model-endpoints/SKILL.md",
+      "sha256": "9c50f95055869521fa7feaa89f99dbf3ab91a7537f714fe759d341b43e708608",
+      "bytes": 10985
+    },
+    {
+      "file": "skills/openfold3/SKILL.md",
+      "sha256": "eef2b03a2c7e1c4b94cd29bb27f3e02499a77be5c414a494f3d78e9c7cc443de",
+      "bytes": 7378
+    },
+    {
+      "file": "skills/paper-narrative/SKILL.md",
+      "sha256": "40e090750f98b3ebe8e435e4430f3fbbe11c03f12c7f44594a21f193831f8f87",
+      "bytes": 2706
+    },
+    {
+      "file": "skills/paper-narrative/kernel.py",
+      "sha256": "ceb1e0df448f2acfb677b68048b03833f4f4bb47fdcd6e0a36874d0100aaf090",
+      "bytes": 5022
+    },
+    {
+      "file": "skills/pdf-explore/SKILL.md",
+      "sha256": "8abf723178c104dcb65613a899e1e55883a4d3995759994de0110529aabd9442",
+      "bytes": 14464
+    },
+    {
+      "file": "skills/pdf-explore/kernel.py",
+      "sha256": "a26512b5c9262877ec506b30a63c0cadffcadfedac993ac040e3432d867e5904",
+      "bytes": 43922
+    },
+    {
+      "file": "skills/product-self-knowledge/SKILL.md",
+      "sha256": "314b9a060c3e12210ca7d95bb54c8db4fe899eec992513f085acd9099e179691",
+      "bytes": 2537
+    },
+    {
+      "file": "skills/proteinmpnn/SKILL.md",
+      "sha256": "42b01be755d4feb92820b95712016534d944c168a689c495fc6ab044c16cb7da",
+      "bytes": 4909
+    },
+    {
+      "file": "skills/remote-compute-modal/SKILL.md",
+      "sha256": "7093817231f771334a53ff72a7f835635f357e0de2e33c5f8161102af4eb6c83",
+      "bytes": 54233
+    },
+    {
+      "file": "skills/remote-compute-modal/env-setup.md",
+      "sha256": "b21cdb2ed4d5feab0af9b0efca23864b90ff1685f13de16cc2a96baa94169bdc",
+      "bytes": 19595
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/chemistry_gpu.py",
+      "sha256": "0b929572f2b4f6823486d8635156145da45ca310b0fd0e4b1f09397fe08ad548",
+      "bytes": 950
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/esmfold2_gpu.py",
+      "sha256": "b84e2babc270ab7fe8f4edde09bc4f60c67257397c4cd12389a48768edac5e31",
+      "bytes": 3644
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/genomics_evo2_gpu.py",
+      "sha256": "c3f3e4703998f061176abc2715b74060f939b84000b024fcfe6e35ec5f1c5055",
+      "bytes": 2095
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/md_openmm_gpu.py",
+      "sha256": "7dd15673229a614b5f58f4e3f6cbb324ad33bc3020568ee46e876082feed3126",
+      "bytes": 1436
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/proteomics_boltz_gpu.py",
+      "sha256": "fc3f36390514cc778f230bc05de910564ee026c3b710997a0ea4d7d59c1008b9",
+      "bytes": 1311
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/proteomics_gpu.py",
+      "sha256": "765076a3076fcccc9dce7669d8caf6a861f51cda40708065cafd5540e877edbe",
+      "bytes": 2450
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/proteomics_jax_gpu.py",
+      "sha256": "f862b09b9319fa17ffde4b588c209a2a1429a786d6599da023927fc60e4d7f0f",
+      "bytes": 1643
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/proteomics_openfold_gpu.py",
+      "sha256": "20562138429cbaa54853164adaf689abbcc37998e9299c3bfae71107c66039ff",
+      "bytes": 3049
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/proteomics_rfd_diffdock_gpu.py",
+      "sha256": "ff53e00ef83847d4793efca6e1986a58c64a876f1d54e26f2ac886c5fa3bbef5",
+      "bytes": 4103
+    },
+    {
+      "file": "skills/remote-compute-modal/envs/singlecell_gpu.py",
+      "sha256": "ba5c49a11097a0248edde20b5f06d7b9d390e4cdd5f2bf29655d3454c6a542ac",
+      "bytes": 3156
+    },
+    {
+      "file": "skills/remote-compute-modal/provider.json",
+      "sha256": "3ec5afe85350f4cb82b4370cfa3bd9c1d08695d34335689ab5d6278dd74e54b0",
+      "bytes": 342
+    },
+    {
+      "file": "skills/remote-compute-modal/provider.py",
+      "sha256": "58b6648edae6a3234a9adc8c719a2fc44fcadf9df9dde3bfb1aea30ac46023f8",
+      "bytes": 42360
+    },
+    {
+      "file": "skills/remote-compute-modal/requirements.lock",
+      "sha256": "349935c78d9f20bfe0c816236f47fae08053817af6af861362a4f25413d890d9",
+      "bytes": 72359
+    },
+    {
+      "file": "skills/remote-compute-ssh/SKILL.md",
+      "sha256": "6b0a1bbb5543bb001e7dac65b5d47159cca278364a6625aef26deda555a624f3",
+      "bytes": 27510
+    },
+    {
+      "file": "skills/scgpt/SKILL.md",
+      "sha256": "cfc7161b3dccb7fe2ac7d46642b649a209c4eaddf9512f4faae27d36eb29bc97",
+      "bytes": 5454
+    },
+    {
+      "file": "skills/scvi-tools/SKILL.md",
+      "sha256": "34866479168c8ef7f8e48c2a8e62b35263079af3b749ac35d96ed9748bcfa917",
+      "bytes": 11270
+    },
+    {
+      "file": "skills/scvi-tools/kernel.py",
+      "sha256": "4abd8a39ac92ef75222bc5b57f80d7bd0f00b6899d58863c2311ef0eadfcb6c4",
+      "bytes": 1982
+    },
+    {
+      "file": "skills/self-awareness/SKILL.md",
+      "sha256": "db82461496f77d76695905f590ed792304a54f7d92d4634adb1a2a64c39f49e9",
+      "bytes": 15878
+    },
+    {
+      "file": "skills/skill-creator/SKILL.md",
+      "sha256": "53f2878a02789edacc03c8a9f6c9c89ab3666ce02bcd8d8643dd1548d7908d2e",
+      "bytes": 39473
+    },
+    {
+      "file": "skills/skill-creator/agents/analyzer.md",
+      "sha256": "781df0c1344c181939f4e5762e84c9f6d15e97013d52f8e314cc36692e74d572",
+      "bytes": 10546
+    },
+    {
+      "file": "skills/skill-creator/agents/comparator.md",
+      "sha256": "bc255d0010c341134513813bd761fa45a0d8542a8c7cf44b0ed40ce01542861f",
+      "bytes": 7370
+    },
+    {
+      "file": "skills/skill-creator/agents/grader.md",
+      "sha256": "75defb397bc8937aa27c4721cbd5bb779b70fdf19f77110b1d1ba7f7f2432f0d",
+      "bytes": 9053
+    },
+    {
+      "file": "skills/skill-creator/assets/eval_review.html",
+      "sha256": "35fc7d2368bf173ebd1639832693af89cae01a606b732c3cd8b8a06d218f0666",
+      "bytes": 8502
+    },
+    {
+      "file": "skills/skill-creator/eval-viewer/generate_review.py",
+      "sha256": "25afe0a2c82ce70e636f9fb0fcf5c583a3dcd8bcc116739107214db801472134",
+      "bytes": 16110
+    },
+    {
+      "file": "skills/skill-creator/eval-viewer/viewer.html",
+      "sha256": "ab8e1499518b1d3ebc894f7a5e6c8bd47dc8045d9e68d7894a21de3d124f864a",
+      "bytes": 52210
+    },
+    {
+      "file": "skills/skill-creator/references/schemas.md",
+      "sha256": "0302d90cfe26f7a67218e66711071a23f28c47ac81e3ba13ce47ac451ca425a2",
+      "bytes": 12088
+    },
+    {
+      "file": "skills/skill-creator/scripts/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "file": "skills/skill-creator/scripts/aggregate_benchmark.py",
+      "sha256": "f06948ec82c182e02483cb77cf822e3d578c36d0e6c2c6589e867615c685e7ba",
+      "bytes": 13486
+    },
+    {
+      "file": "skills/skill-creator/scripts/generate_report.py",
+      "sha256": "d265b4e377688b6c549eebec5cdffc2e4a0fbefb02dbcdfaff7e8483c295825f",
+      "bytes": 12289
+    },
+    {
+      "file": "skills/skill-creator/scripts/improve_description.py",
+      "sha256": "1b5ff8fc1a1e65f00e2ef3d7ec03a44266e8d1ccdcfa48ae8a6c88ce3f6cc0fc",
+      "bytes": 10447
+    },
+    {
+      "file": "skills/skill-creator/scripts/package_skill.py",
+      "sha256": "cc72ca397239622a857f4625d586f8e35e8dc485929fb9247f645e157e46a989",
+      "bytes": 5219
+    },
+    {
+      "file": "skills/skill-creator/scripts/quick_validate.py",
+      "sha256": "6d917e48fa4a391d3331bb2910936be8ad61e39bb8e6864a0b7dc94c48cdced9",
+      "bytes": 3383
+    },
+    {
+      "file": "skills/skill-creator/scripts/run_eval.py",
+      "sha256": "8601a7c3023b8e00124e5c44e64caa03cdb89d84aa84fc59c96f88581a377944",
+      "bytes": 12592
+    },
+    {
+      "file": "skills/skill-creator/scripts/run_loop.py",
+      "sha256": "930046b8edc658be34b5a40425e24de7f718cf7d6c42c8da8b2c861f174740ce",
+      "bytes": 12793
+    },
+    {
+      "file": "skills/skill-creator/scripts/utils.py",
+      "sha256": "d7b1df2efb98e160abb7cc19f3ca45aef7d7032d86ae80942164c70d304afe41",
+      "bytes": 1600
+    },
+    {
+      "file": "skills/solublempnn/SKILL.md",
+      "sha256": "c2bf64a2e97f500c6fca1814b63bf0ed74aec7dd2212043c86e6003298114bbd",
+      "bytes": 4599
+    },
+    {
+      "file": "skills/using-model-endpoint/SKILL.md",
+      "sha256": "2ee613c4530f85e21db322b4e15d510a1800c228dee4c010a2849e55f852af00",
+      "bytes": 1754
+    },
+    {
+      "file": "skills/using-model-endpoint/provider.json",
+      "sha256": "306e4111dbcb642635e020d1caf94c75f24f18526401e85d43e6658c37a517d9",
+      "bytes": 187
+    },
+    {
+      "file": "skills/using-model-endpoint/provider.py",
+      "sha256": "4508e5affd203575edd564398bf4c7bb12ddea75128488f2cdbb380ded8f2f1a",
+      "bytes": 3628
+    },
+    {
+      "file": "skills/using-model-endpoint/requirements.lock",
+      "sha256": "6283138bbf85e71c1f26fd5e20e4512bd03f29d04656ce150ba8d7b5eccaa504",
+      "bytes": 1581
+    }
+  ]
+}

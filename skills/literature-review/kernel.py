@@ -44,14 +44,28 @@ def litrev_contact() -> str | None:
     return (r or None) if isinstance(r, str) else None
 
 
+def litrev_user_agent(contact: str | None = None) -> str:
+    """The product's User-Agent, with `contact` added when the header can carry
+    it. No version: code in a cell cannot see the app's."""
+    ua = "Claude-Science (+https://claude.com/product/claude-science)"
+    if contact and contact.isascii() and not re.search(r"[\x00-\x20\x7f()\\]", contact):
+        ua = f"{ua[:-1]}; mailto:{contact})"
+    return ua
+
+
 def litrev_openalex_key() -> str:
     """The OpenAlex API key — REQUIRED on every api.openalex.org request
     (keyless calls fail with 409/429; OpenAlex takes no mailto
-    parameter). Env first (OPENALEX_API_KEY is injected into this kernel when
-    a credential is stored), then the host ask (repl kernel — may prompt
-    the user once; the accepted key is validated and saved). Raises
-    RuntimeError with the host's actionable guidance when no key is
-    available — callers must NOT fall back to anonymous calls."""
+    parameter). Env first (OPENALEX_API_KEY is in this kernel's environment
+    only when the python call DECLARED the stored OpenAlex credential —
+    `credentials=["OPENALEX_API_KEY"]`, or the credential's name as listed
+    under Available Credentials — and the user approved it; an undeclared
+    cell has no credential env vars),
+    then the host ask (repl kernel — may prompt the user once; the accepted
+    key is saved). Raises RuntimeError with the host's
+    actionable guidance when no key is available — in an analysis cell that
+    did not declare the credential, re-run the cell declaring it rather than
+    skipping; callers must NOT fall back to anonymous calls."""
     import os
     k = os.environ.get("OPENALEX_API_KEY")
     if k:
@@ -68,10 +82,14 @@ def litrev_openalex_key() -> str:
         if type(e).__name__ in ("CredentialUnavailable", "CredentialDeclined"):
             raise
         raise RuntimeError(
-            "OpenAlex requires a free API key and none is available "
-            "(%s). Skip OpenAlex-backed steps (search_openalex / "
-            "expand_citations); keyless calls are unsupported. The user "
-            "can add a key under Customize → Credentials → OpenAlex "
+            "OpenAlex requires a free API key and none reached this cell "
+            "(%s). If an OpenAlex credential is stored (Available "
+            "Credentials), re-run this cell DECLARING it — "
+            "credentials=[\"OPENALEX_API_KEY\"] on the python call; an "
+            "undeclared cell receives no credentials. Otherwise skip "
+            "OpenAlex-backed steps (search_openalex / expand_citations); "
+            "keyless calls are unsupported. The user can add a key under "
+            "Customize → Credentials → OpenAlex "
             "(free at https://openalex.org/settings/api)." % e
         ) from None
 
@@ -82,54 +100,114 @@ def litrev_openalex_key() -> str:
     return k
 
 
+LITREV_OPENALEX_REDIRECTED = (
+    "OpenAlex answered this request with a redirect that was not followed. "
+    "This says nothing about the API key: skip this look-up or try it "
+    "again later."
+)
+
+
+def litrev_openalex_bearer(key: str) -> str:
+    """The ``Authorization`` header value that carries `key`. Raises
+    RuntimeError, saying what to do, for a key that is not 8 to 512
+    characters of visible ASCII (the app's own rule for a key it saves)."""
+    if not (8 <= len(key) <= 512 and key.isascii() and key.isprintable()
+            and " " not in key):
+        raise RuntimeError(
+            "The saved OpenAlex API key can't be used as it is. Use 8 to "
+            "512 characters: the letters A to Z (capital or small), digits "
+            "and keyboard punctuation marks, with no spaces or invisible "
+            "characters. Copy it again from "
+            "https://openalex.org/settings/api and save it under Customize "
+            "→ Credentials → OpenAlex. Do not retry anonymously."
+        )
+    return "Bearer " + key
+
+
+def litrev_openalex_open(url: str, bearer: str | None, timeout: float):
+    """Open a GET of `url`, with `bearer` as its ``Authorization`` header
+    when one is given. A redirect is followed, with the header, only while
+    it stays on https://api.openalex.org. One that names any other address
+    raises RuntimeError; one urllib will not follow raises its HTTPError."""
+
+    class StayOnOpenAlex(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            to = urllib.parse.urlsplit(newurl)
+            if to.scheme != "https" or to.netloc.lower() not in (
+                    "api.openalex.org", "api.openalex.org:443"):
+                raise RuntimeError(LITREV_OPENALEX_REDIRECTED)
+            return super().redirect_request(
+                req, fp, code, msg, headers, newurl)
+
+    headers = {"User-Agent": litrev_user_agent()}
+    if bearer is not None:
+        headers["Authorization"] = bearer
+    req = urllib.request.Request(url, headers=headers)
+    opener = urllib.request.build_opener(StayOnOpenAlex)
+    return opener.open(req, timeout=timeout)
+
+
 def litrev_openalex_key_ok(key: str, timeout: float = 10) -> bool | None:
-    """Cheap key-aliveness probe: GET /rate-limit carrying ONLY api_key.
+    """Cheap key-aliveness probe of /rate-limit, carrying ONLY the key.
     With no other query parameters, a 4xx here cannot be a bad-parameter
     refusal (per the host's credential-ask status matrix), so it cleanly
-    disambiguates a dual-cause request-path 403. Returns True when the
-    key authenticates (2xx, or 429 = authenticated but over budget),
-    False when the key is refused (other 4xx), None when unknown
-    (network trouble) — callers treat None like True (soft-degrade)."""
-    url = ("https://api.openalex.org/rate-limit?api_key="
-           + urllib.parse.quote(key, safe=""))
-    req = urllib.request.Request(
-        url, headers={"User-Agent": "ClaudeScience-literature-review/1.0"}
-    )
+    disambiguates a dual-cause request-path 403. The key goes first as
+    api_key in the query, the form OpenAlex documents for this address.
+    Only if that is refused (a 4xx other than 429) is the check sent once
+    more, with the key as the bearer header the requests use and no query:
+    a proxy that drops the query leaves the header. Nobody has yet seen
+    /rate-limit read that header; if it does not, this second step is
+    answered as a keyless request and changes nothing. Returns True when
+    the key authenticates (2xx, or 429 = authenticated but over budget),
+    False when it is refused both ways (or refused in the query and unable
+    to go in a header), None when unknown (network trouble, a 5xx, or a
+    redirect that is not followed) — callers treat None like True
+    (soft-degrade)."""
+
+    def ask(url: str, bearer: str | None) -> bool | None:
+        try:
+            with litrev_openalex_open(url, bearer, timeout):
+                return True
+        except urllib.error.HTTPError as e:
+            if e.code == 429:
+                return True
+            return False if 400 <= e.code < 500 else None
+        except Exception:
+            return None
+
+    base = "https://api.openalex.org/rate-limit"
+    first = ask(base + "?api_key=" + urllib.parse.quote(key, safe=""), None)
+    if first is not False:
+        return first
     try:
-        with urllib.request.urlopen(req, timeout=timeout):
-            return True
-    except urllib.error.HTTPError as e:
-        if e.code == 429:
-            return True
-        return False if 400 <= e.code < 500 else None
-    except Exception:
-        return None
+        bearer = litrev_openalex_bearer(key)
+    except RuntimeError:
+        return False
+    return ask(base, bearer)
 
 
 def litrev_openalex_get(url: str, timeout: float = 15) -> dict | None:
-    """GET an api.openalex.org URL with the required ``api_key=`` appended
+    """GET an api.openalex.org URL with the required key as a bearer header
     (and NO ``mailto`` anywhere — param or UA). Raises RuntimeError with an
-    actionable message on 401/409 (key rejected/required) and on a 429
-    that survives one 2 s retry (usage limit — most commonly the daily
-    budget, which resets at 00:00 UTC). A 403 is dual-cause on request
-    paths — key rejected OR invalid query parameters (bad ``filter=``/
+    actionable message for an unsendable key, a redirect not followed, on
+    401/409 (key rejected/required) and on a 429 that survives one 2 s
+    retry (usually the daily budget, reset 00:00 UTC). A 403 is dual-cause on
+    request paths: key rejected OR invalid query parameters (bad ``filter=``/
     ``select=`` values; per the host's credential-ask status matrix) — so it is
-    disambiguated with one tiny /rate-limit probe: key confirmed dead →
-    raise (otherwise a sweep silently continues with a dead key); key
-    alive or probe inconclusive → return None (soft-degrade, so callers'
-    fallbacks, e.g. the authorless ``select`` retry in expand_citations,
-    still run). Returns None on all other errors."""
+    disambiguated with a tiny /rate-limit probe (two requests at most): key
+    confirmed dead → raise (otherwise a sweep silently continues with a dead
+    key); key alive or probe inconclusive → return None (soft-degrade, so
+    callers' fallbacks, e.g. the authorless ``select`` retry in
+    expand_citations, still run). Returns None on all other errors."""
     key = litrev_openalex_key()
-    sep = "&" if "?" in url else "?"
-    full = url + sep + "api_key=" + urllib.parse.quote(key, safe="")
+    bearer = litrev_openalex_bearer(key)
     for attempt in (0, 1):
-        req = urllib.request.Request(
-            full, headers={"User-Agent": "ClaudeScience-literature-review/1.0"}
-        )
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as r:
+            with litrev_openalex_open(url, bearer, timeout) as r:
                 return json.loads(r.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
+            if 300 <= e.code < 400:
+                raise RuntimeError(LITREV_OPENALEX_REDIRECTED) from None
             if e.code in (401, 409):
                 raise RuntimeError(
                     "OpenAlex rejected the API key (HTTP %d). Re-check it "
@@ -165,6 +243,10 @@ def litrev_openalex_get(url: str, timeout: float = 15) -> dict | None:
                     "continue with non-OpenAlex sources."
                 ) from None
             return None
+        except RuntimeError as e:
+            if str(e) == LITREV_OPENALEX_REDIRECTED:
+                raise
+            return None
         except Exception:
             return None
     return None
@@ -172,9 +254,7 @@ def litrev_openalex_get(url: str, timeout: float = 15) -> dict | None:
 
 def litrev_get(url: str, timeout: float = 15) -> dict | None:
     """GET `url` and JSON-decode. One 2s retry on HTTP 429; None on any error."""
-    c = litrev_contact()
-    ua = "ClaudeScience-literature-review/1.0" + (f" (mailto:{c})" if c else "")
-    ua = ua.encode("ascii", "ignore").decode("ascii")
+    ua = litrev_user_agent(litrev_contact())
     for attempt in (0, 1):
         req = urllib.request.Request(url, headers={"User-Agent": ua})
         try:
@@ -240,10 +320,7 @@ def litrev_head(url: str, timeout: float = 10) -> int | None:
     status (so doi.org returns 302 for a registered DOI and 404 for an
     unregistered one — not the publisher's status). One 2s retry on 429.
     Returns None only when no status could be obtained (connection/timeout)."""
-    c = litrev_contact()
-    ua = ("ClaudeScience-literature-review/1.0" + (f" (mailto:{c})" if c else "")).encode(
-        "ascii", "ignore"
-    ).decode("ascii")
+    ua = litrev_user_agent(litrev_contact())
 
     class NoRedirect(urllib.request.HTTPRedirectHandler):
         def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -344,9 +421,9 @@ def search_openalex(query: str, n: int = 10, filters: str = "") -> list[dict]:
     """Search OpenAlex (open scholarly index, ~250M works). Returns up to n
     hits as [{doi, title, authors, year, cited_by, venue, oa_url}]. `filters` is an
     OpenAlex filter string, e.g. 'from_publication_date:2022-01-01'.
-    Raises RuntimeError when no API key is available or OpenAlex rejects
-    it / reports the daily budget exhausted — do not retry anonymously;
-    continue the sweep with the non-OpenAlex sources."""
+    Raises RuntimeError when no API key is available, OpenAlex rejects it
+    or reports the daily budget exhausted, or a redirect is not followed:
+    never retry anonymously; go on with the non-OpenAlex sources."""
     q = urllib.parse.quote(query)
     flt = f"&filter={filters}" if filters else ""
     j = litrev_openalex_get(
@@ -381,8 +458,9 @@ def expand_citations(doi: str, n_backward: int = 50, n_forward: int = 15) -> dic
     list query retries without `authorships`); returns empty lists when the
     DOI is unknown to OpenAlex or a transient error hit the list endpoint.
     Raises RuntimeError with actionable guidance when no API key is
-    available, OpenAlex rejects it (401/409), or the key is over its
-    usage limit (429 after one retry) — do not retry anonymously."""
+    available, OpenAlex rejects it (401/409), the key is over its usage
+    limit (429 after one retry) or a redirect is not followed. Do not retry
+    anonymously."""
     enc = quote_doi_path(doi)
     work = litrev_openalex_get(
         f"https://api.openalex.org/works/doi:{enc}?select=id"

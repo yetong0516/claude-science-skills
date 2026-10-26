@@ -1,0 +1,41 @@
+{
+  "baseline_commit": "ea5f00b6e0b621f539466eafa51952ce2caaed60",
+  "runtime_version": "0.1.70",
+  "comparison_scope": "All 81 exported files, including extensionless files and requirements.lock; legacy .catalog_stamp files excluded.",
+  "changed_existing_files": [
+    "skills/borzoi/SKILL.md",
+    "skills/compute-env-setup/SKILL.md",
+    "skills/compute-env-setup/references/envs_reference.md",
+    "skills/customize/SKILL.md",
+    "skills/evo2/SKILL.md",
+    "skills/fair-esm2/SKILL.md",
+    "skills/figure-composer/kernel.py",
+    "skills/ligandmpnn/SKILL.md",
+    "skills/literature-review/kernel.py",
+    "skills/managed-model-endpoints/SKILL.md",
+    "skills/paper-narrative/kernel.py",
+    "skills/pdf-explore/kernel.py",
+    "skills/proteinmpnn/SKILL.md",
+    "skills/remote-compute-modal/SKILL.md",
+    "skills/remote-compute-modal/env-setup.md",
+    "skills/remote-compute-modal/envs/proteomics_openfold_gpu.py",
+    "skills/remote-compute-modal/provider.py",
+    "skills/remote-compute-modal/requirements.lock",
+    "skills/remote-compute-ssh/SKILL.md",
+    "skills/scgpt/SKILL.md",
+    "skills/scvi-tools/SKILL.md",
+    "skills/self-awareness/SKILL.md",
+    "skills/skill-creator/SKILL.md",
+    "skills/skill-creator/eval-viewer/generate_review.py",
+    "skills/skill-creator/eval-viewer/viewer.html",
+    "skills/skill-creator/scripts/package_skill.py",
+    "skills/skill-creator/scripts/run_eval.py",
+    "skills/solublempnn/SKILL.md",
+    "skills/using-model-endpoint/provider.py",
+    "skills/using-model-endpoint/requirements.lock"
+  ],
+  "added_files": [
+    "skills/THIRD_PARTY_LICENSES.md"
+  ],
+  "removed_files": []
+}

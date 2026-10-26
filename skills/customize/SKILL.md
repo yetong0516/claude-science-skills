@@ -7,7 +7,14 @@ license: Apache-2.0
 # Customize
 
 Build and maintain **agent profiles** and **skills** programmatically via the
-`repl` tool using `host.agents.*` and `host.skills.*`.
+`repl` tool using `host.agents.*` and `host.skills.*`. (An organization admin
+can turn custom skills or custom connectors off, and some plans have them off
+by default. With custom skills off, creating a new skill or publishing a draft
+is refused with an error saying custom skills are turned off for the user's
+organization — existing skills keep loading and stay editable. With custom
+connectors off, attaching one is refused the same way and existing custom
+connectors are hidden from you until they are turned back on. Tell the user;
+there is no workaround from here.)
 
 A **profile** is a named bundle that shapes how an agent behaves:
 
@@ -205,13 +212,15 @@ scope→draft→confirm loop; `ask_user` (step 4) is the review gate. A plan
 adds a second approval that duplicates the `ask_user` confirmation and
 drags in step-status bookkeeping that fights this workflow.
 
-**User approval.** Most `host.agents.*` / `host.skills.*` calls apply
-immediately — `create`/`update` (including unrestricted, where the session
-permits it — see step 3),
-`attach_*`/`detach_*`, and `skills.publish`/`skills.edit` are pre-approved
-at session start and the cell does NOT pause. An approval card (cell
-pauses, resumes automatically on Allow — you don't retry) appears only
-for the calls that **hand off identity or free a granted name**:
+**User approval.** Every `host.agents.*` / `host.skills.*` call that
+writes — `create`/`update` (including unrestricted, where the session
+permits it — see step 3), `attach_*`/`detach_*`, `skills.edit`,
+`skills.publish`, `switch`, `delete` — can raise an approval card the user
+must accept (the cell pauses and resumes automatically on Allow — you
+don't retry). The card shows what is being written: the profile prompt
+and description, or the skill file / whole skill bundle being published.
+No card appears when the user has already allowed that kind of call for
+this conversation, project, or always. Scope notes:
 
 - `host.agents.switch(name)` — per-target; Allow covers this name only
 - `host.agents.update(name, {"name": ...})` (rename) — per-target
@@ -219,6 +228,15 @@ for the calls that **hand off identity or free a granted name**:
   per project**: the first delete shows a card; "Allow for this project"
   covers every subsequent delete in this project, including bulk
   teardown. Do NOT tell the user they'll see N cards for N deletes.
+- `host.skills.publish(name)` is refused (nothing published) when the
+  bundle cannot be shown on a card in full — a binary or very large file,
+  or more than 64 files; tell the user to publish it from Customize →
+  Skills instead. It is also refused when SKILL.md's frontmatter is not
+  valid YAML (quote values that contain `: `, no duplicate keys) — fix it
+  with `host.skills.edit` and publish again. `host.skills.edit` is
+  refused for a single write over 64 KiB; split it into smaller edits.
+  `host.agents.create/update` are refused for a display name over 200,
+  a description over 2,000 or a system prompt over 32,000 characters.
 
 The name is read from the runtime call for `switch` and rename, so both
 literal and variable names work (`host.agents.switch("FOO")` or
@@ -360,9 +378,10 @@ Then use the `host.skills` SDK via the `repl` tool to write and publish:
 
 ```python
 # draft
+# Double-quote frontmatter values that contain ': ' (e.g. the description).
 host.skills.edit("my-skill", "SKILL.md", """---
 name: my-skill
-description: ...
+description: "..."
 ---
 
 # My Skill
@@ -384,6 +403,15 @@ Once published, the skill is in the live catalog — every unrestricted profile
 immediately. For a restricted profile, attach it explicitly with
 `host.agents.attach_skill(profile_name, "my-skill")`.
 
+A saved draft already works before it is published: drafts show up in
+`search_skills` and load with `skill(...)`, labeled as drafts, for every agent
+whose skill set is not locked. Publishing shares the skill with the user's
+organization through claude.ai. If `host.skills.publish` fails because this
+app has no working claude.ai sign-in (some setups, such as a managed VM, have
+none), do not retry it: tell the user the skill is saved and ready to use
+in their chats here, and that sharing it with their organization needs a
+claude.ai sign-in.
+
 ---
 
 ## Kernel sidecars (`kernel.py` / `kernel.R`)
@@ -404,10 +432,10 @@ names — nothing author-written runs at load time. Allowed at the top level:
   which also replaces `0`, `""`, `[]`).
 - `import` / `from … import name` (no `*`). Defer third-party imports to
   inside function bodies — the skeleton `python` env ships stdlib + a small
-  starter set (numpy, pandas, scipy, matplotlib, seaborn, pillow), so e.g.
-  `import requests` at module scope surfaces a load error on every fresh
-  kernel. Import errors don't fail the skill load; the agent sees the
-  traceback and can `manage_packages` then re-load.
+  starter set (numpy, pandas, scipy, matplotlib, seaborn, pillow and, on newer
+  installs, requests), so e.g. `import httpx` at module scope surfaces a load
+  error on every fresh kernel. Import errors don't fail the skill load; the
+  agent sees the traceback and can `manage_packages` then re-load.
 - Assignment of a **literal** constant to a plain name (e.g. `VERSION = "1"`,
   `LIMITS = (1, 2, 3)`). Computed values like `os.path.join(...)` are
   rejected — move them into a function body.
@@ -470,7 +498,7 @@ import pandas as pd  # starter-set package — OK at module scope
 
 def annotate_df(df: pd.DataFrame, gene_col: str = "gene") -> pd.DataFrame:
     """Attach HGNC symbols; see SKILL.md ## Workflow step 3."""
-    import requests  # not in starter set — defer to function body
+    import httpx  # not in starter set — defer to function body
     ...
     return df
 ```
