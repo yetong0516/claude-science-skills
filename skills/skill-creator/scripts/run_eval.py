@@ -6,9 +6,11 @@ for a set of queries. Outputs results as JSON.
 """
 
 import argparse
+import contextlib
 import errno
 import json
 import os
+import re
 import select
 import subprocess
 import sys
@@ -33,6 +35,17 @@ def find_project_root() -> Path:
     return current
 
 
+def probe_slug(skill_name: str) -> str:
+    """Kebab-case form of the skill name for the probe's command file name.
+
+    The probe file must land in .claude/commands/ whatever the frontmatter
+    says, so only the characters quick_validate.py allows in a name survive
+    ([a-z0-9-]); a malformed `name:` such as "../../x" or "/abs" cannot steer
+    the path, and a draft named "My Skill" still gets a usable probe.
+    """
+    return re.sub(r"[^a-z0-9-]+", "-", skill_name.lower()).strip("-")[:64] or "skill"
+
+
 def run_single_query(
     query: str,
     skill_name: str,
@@ -44,13 +57,13 @@ def run_single_query(
     """Run a single query and return whether the skill was triggered.
 
     Creates a command file in .claude/commands/ so it appears in Claude's
-    available_skills list, then runs `claude -p` with the raw query.
+    available_skills list, then runs `claude -p` with the query on stdin.
     Uses --include-partial-messages to detect triggering early from
     stream events (content_block_start) rather than waiting for the
     full assistant message, which only arrives after tool execution.
     """
     unique_id = uuid.uuid4().hex[:8]
-    clean_name = f"{skill_name}-skill-{unique_id}"
+    clean_name = f"{probe_slug(skill_name)}-skill-{unique_id}"
     project_commands_dir = Path(project_root) / ".claude" / "commands"
     command_file = project_commands_dir / f"{clean_name}.md"
 
@@ -70,7 +83,7 @@ def run_single_query(
 
         cmd = [
             "claude",
-            "-p", query,
+            "-p",
             "--output-format", "stream-json",
             "--verbose",
             "--include-partial-messages",
@@ -85,6 +98,7 @@ def run_single_query(
 
         process = subprocess.Popen(
             cmd,
+            stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             cwd=project_root,
@@ -99,6 +113,14 @@ def run_single_query(
         accumulated_json = ""
 
         try:
+
+
+
+
+            with contextlib.suppress(BrokenPipeError):
+                process.stdin.write(query.encode("utf-8"))
+            with contextlib.suppress(BrokenPipeError):
+                process.stdin.close()
             while time.time() - start_time < timeout:
                 if process.poll() is not None:
                     remaining = process.stdout.read()

@@ -11,6 +11,7 @@ Example:
 """
 
 import fnmatch
+import stat
 import sys
 import zipfile
 from pathlib import Path
@@ -62,9 +63,16 @@ def package_skill(skill_path, output_dir=None):
         return None
 
 
+
+
     skill_md = skill_path / "SKILL.md"
-    if not skill_md.exists():
+    try:
+        md = skill_md.lstat()
+    except OSError:
         print(f"❌ Error: SKILL.md not found in {skill_path}")
+        return None
+    if not stat.S_ISREG(md.st_mode) or md.st_nlink > 1:
+        print("❌ Error: SKILL.md must be the skill folder's own regular file, not a link, directory or special file")
         return None
 
 
@@ -88,18 +96,48 @@ def package_skill(skill_path, output_dir=None):
 
 
     try:
+
+
+
+
+        left_out = 0
         with zipfile.ZipFile(skill_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
 
             for file_path in skill_path.rglob('*'):
-                if not file_path.is_file():
-                    continue
                 arcname = file_path.relative_to(skill_path.parent)
+                try:
+                    st = file_path.lstat()
+                except OSError as e:
+                    print(f"  Skipped (unreadable: {e.strerror}): {arcname}")
+                    left_out += 1
+                    continue
+                if not (stat.S_ISREG(st.st_mode) or stat.S_ISLNK(st.st_mode)):
+                    continue
                 if should_exclude(arcname):
                     print(f"  Skipped: {arcname}")
+                    continue
+                if stat.S_ISLNK(st.st_mode):
+                    print(f"  Skipped (symlink): {arcname}")
+                    left_out += 1
+                    continue
+                if st.st_nlink > 1:
+                    print(f"  Skipped (hard link: the file has another name elsewhere): {arcname}")
+                    left_out += 1
+                    continue
+                if skill_path not in file_path.resolve().parents:
+                    print(f"  Skipped (resolves outside the skill folder): {arcname}")
+                    left_out += 1
                     continue
                 zipf.write(file_path, arcname)
                 print(f"  Added: {arcname}")
 
+        if left_out:
+            print(
+                f"\n⚠ {left_out} file(s) were left out because they are links, resolve outside "
+                "the skill folder or could not be read (package-manager installs made inside the "
+                "folder are the usual cause; such directories should not be packaged). The archive "
+                "does not contain them."
+            )
         print(f"\n✅ Successfully packaged skill to: {skill_filename}")
         return skill_filename
 

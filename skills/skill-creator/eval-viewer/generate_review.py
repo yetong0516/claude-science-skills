@@ -26,6 +26,7 @@ import webbrowser
 from functools import partial
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 METADATA_FILES = {"transcript.md", "user_notes.md", "metrics.json"}
@@ -276,7 +277,15 @@ def generate_html(
     if benchmark:
         embedded["benchmark"] = benchmark
 
-    data_json = json.dumps(embedded)
+
+
+
+    data_json = (
+        json.dumps(embedded)
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("&", "\\u0026")
+    )
 
     return template.replace("/*__EMBEDDED_DATA__*/", f"const EMBEDDED_DATA = {data_json};")
 
@@ -360,6 +369,24 @@ class ReviewHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         if self.path == "/api/feedback":
+
+
+
+
+
+            origin = self.headers.get("Origin")
+            if origin is not None:
+                try:
+                    parsed = urlparse(origin)
+                    hostname, port = parsed.hostname, parsed.port
+                except ValueError:
+                    hostname, port = None, None
+                if (
+                    hostname not in ("localhost", "127.0.0.1", "::1")
+                    or port != self.server.server_address[1]
+                ):
+                    self.send_error(403, "forbidden origin")
+                    return
             length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(length)
             try:

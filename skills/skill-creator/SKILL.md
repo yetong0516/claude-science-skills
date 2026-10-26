@@ -43,6 +43,11 @@ host.skills.edit(name, path, content,       # create/overwrite (old_string=None)
 host.skills.publish(name, overwrite=False)  # promote draft → live skill set
 ```
 
+(If the user's organization has custom skills turned off, creating a NEW
+skill or publishing a draft is refused with an error saying custom skills are
+turned off for the user's organization; editing an existing skill still works.
+Tell the user rather than retrying.)
+
 Everything below that says "write SKILL.md" / "save test cases to
 `evals/evals.json`" / "ship `kernel.py`" means
 `host.skills.edit(name, <path>, <content>)`. Iterate with
@@ -133,10 +138,10 @@ Guidance:
   (`open_table`, not `open`).
 - Defer third-party imports to inside function bodies. The skeleton
   `python` env ships stdlib + a small starter set (numpy, pandas, scipy,
-  matplotlib, seaborn, pillow), so e.g. `import requests` at module scope
-  surfaces a load error on every fresh kernel. Import errors don't fail the
-  skill load — the agent sees the traceback and can `manage_packages` then
-  re-load.
+  matplotlib, seaborn, pillow and, on newer installs, requests), so e.g.
+  `import httpx` at module scope surfaces a load error on every fresh kernel.
+  Import errors don't fail the skill load — the agent sees the traceback and
+  can `manage_packages` then re-load.
 - Keep it small and self-contained. `kernel.py` cannot import from the
   skill's `scripts/` dir (it's exec'd into a per-skill kernel namespace with
   the skill dir not on `sys.path` — that import is the classic load error).
@@ -169,7 +174,7 @@ import pandas as pd  # starter-set package — OK at module scope
 
 def annotate_df(df: pd.DataFrame, gene_col: str = "gene") -> pd.DataFrame:
     """Attach HGNC symbols; see SKILL.md ## Workflow step 3."""
-    import requests  # not in starter set — defer to function body
+    import httpx  # not in starter set — defer to function body
     ...
     return df
 ```
@@ -529,7 +534,9 @@ This means your eval queries should be substantive enough that Claude would actu
 
 Take `best_description` from the JSON output and update the skill's SKILL.md
 frontmatter — `host.skills.edit(name, "SKILL.md", best_description,
-old_string=old_description)`. Show the user before/after and report the scores.
+old_string=old_description)`. Keep the frontmatter valid YAML: double-quote a
+`description:` value that contains `: `, or publishing will be refused. Show
+the user before/after and report the scores.
 
 ---
 

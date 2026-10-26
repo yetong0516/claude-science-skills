@@ -238,7 +238,7 @@ def derive_outline(figure_png_path, claim=None, data_hints=None, model=None):
 
 
                    model=model or fc_sdk().reasoning_model(), max_tokens=4000)
-    out = (r.get("tool_use") or [{}])[0].get("input") or {}
+    out = (r.get("tool_use") or {}).get("input") or {}
     for p in out.get("panels") or []:
         p["data_vid"] = None
     return out

@@ -38,7 +38,7 @@ def derive_paper_brief(abstract_text, figure_claims, model=None):
 
 
                    model=model or pn_sdk().reasoning_model(), max_tokens=2000)
-    brief = (r.get("tool_use") or [{}])[0].get("input") or {}
+    brief = (r.get("tool_use") or {}).get("input") or {}
     brief.setdefault("figures", figure_claims)
     return brief
 
